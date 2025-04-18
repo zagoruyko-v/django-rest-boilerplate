@@ -27,6 +27,10 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v2
 
+      - name: Copy .env file
+        run: |
+          cp .env .env
+
       - name: Install Docker Compose
         run: |
           sudo apt-get update
