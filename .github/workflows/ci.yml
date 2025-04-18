@@ -27,11 +27,11 @@ jobs:
 
       - name: Run migrations
         run: |
-          docker-compose exec web python manage.py migrate
+          docker-compose exec -T web python manage.py migrate
 
       - name: Run tests
         run: |
-          docker-compose exec web pytest --maxfail=1 --disable-warnings -q
+          docker-compose exec -T web pytest --maxfail=1 --disable-warnings -q
 
       - name: Tear down Docker Compose
         if: always()
