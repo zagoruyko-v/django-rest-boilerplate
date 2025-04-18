@@ -18,12 +18,8 @@ media/
 staticfiles/
 local_settings.py
 
-.env
 .venv/
 venv/
-ENV/
-env/
-.env.*
 
 .idea/
 .vscode/
