@@ -12,27 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        ports:
-          - 5433:5433
-        env:
-          POSTGRES_USER: django_user
-          POSTGRES_PASSWORD: django_password
-          POSTGRES_DB: django_db
-          POSTGRES_HOST: db
-          POSTGRES_PORT: 5433
-        options: --health-cmd="pg_isready -U django_user" --health-timeout=30s --health-retries=3
-
     steps:
       - name: Check out the code
         uses: actions/checkout@v2
-
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
 
       - name: Set up Docker Compose
         run: |
@@ -54,5 +36,6 @@ jobs:
           docker-compose exec web pytest --maxfail=1 --disable-warnings -q
 
       - name: Tear down Docker Compose
+        if: always()
         run: |
           docker-compose down
