@@ -25,13 +25,6 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up -d
 
-      - name: Wait for DB to be ready
-        run: |
-          until docker exec $(docker ps -qf "name=ci_db") pg_isready -U django_user; do
-            echo "Waiting for database to be ready..."
-            sleep 2
-          done
-
       - name: Run migrations
         run: |
           docker-compose exec web python manage.py migrate
