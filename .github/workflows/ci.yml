@@ -1,52 +1,51 @@
-name: CI for all branches
+name: Django CI
 
 on:
   push:
     branches:
-      - "**"
+      - main
   pull_request:
     branches:
-      - "**"
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     services:
-      db:
+      postgres:
         image: postgres:13
+        ports:
+          - 5432:5432
         env:
           POSTGRES_USER: django_user
           POSTGRES_PASSWORD: django_password
           POSTGRES_DB: django_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U django_user"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        options: --health-cmd="pg_isready -U django_user" --health-timeout=30s --health-retries=3
 
     steps:
-      - name: Checkout code
+      - name: Check out the code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build Docker image
+      - name: Set up Docker Compose
         run: |
-          docker build -t boilerplate .
+          docker-compose -f docker-compose.yml up -d
 
-      - name: Run pytest inside Docker
+      - name: Wait for DB to be ready
         run: |
-          docker run --rm \
-            -e DEBUG=True \
-            -e SECRET_KEY=secret \
-            -e POSTGRES_USER=django_user \
-            -e POSTGRES_PASSWORD=django_password \
-            -e POSTGRES_DB=django_db \
-            -e POSTGRES_HOST=db \
-            -e POSTGRES_PORT=5432 \
-            --link db \
-            boilerplate pytest --maxfail=1 --disable-warnings -q
+          until docker exec $(docker ps -qf "name=ci_db") pg_isready -U django_user; do
+            echo "Waiting for database to be ready..."
+            sleep 2
+          done
+
+      - name: Run migrations
+        run: |
+          docker-compose exec web python manage.py migrate
+
+      - name: Run tests
+        run: |
+          docker-compose exec web pytest --maxfail=1 --disable-warnings -q
+
+      - name: Tear down Docker Compose
+        run: |
+          docker-compose down
