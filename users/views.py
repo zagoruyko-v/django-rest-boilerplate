@@ -4,12 +4,14 @@ from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User, ConfirmationCode
 from .serializers import (
     PhoneAuthRequestCodeSerializer,
     PhoneAuthVerifyCodeSerializer,
+    UserInfoSerializer,
 )
 from .services.phone_auth_service import TooManyRequestsError, ConfirmationCodeService
 
@@ -90,3 +92,20 @@ class PhoneAuthVerifyCodeView(GenericAPIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class UserInfoView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserInfoSerializer
+
+    def get(self, request):
+        user = request.user
+        serializer = self.get_serializer(instance=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(instance=user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)

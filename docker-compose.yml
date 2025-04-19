@@ -12,6 +12,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13
@@ -24,5 +25,13 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
+  redis_data:
