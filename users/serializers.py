@@ -30,3 +30,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "phone_number",
         ]
+
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

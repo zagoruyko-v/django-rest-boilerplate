@@ -13,7 +13,7 @@ def send_sms_task(self, phone_number: str, code: str):
         event_type=TaskLog.EventType.SMS,
         recipient=phone_number,
         status=TaskLog.Status.PENDING,
-        payload={"message": f"Отправка SMS на номер {phone_number} с кодом {code}"},
+        payload={"detail": f"Отправка SMS на номер {phone_number} с кодом {code}"},
         created_at=timezone.now(),
         updated_at=timezone.now(),
     )
