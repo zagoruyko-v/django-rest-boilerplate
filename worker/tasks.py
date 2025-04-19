@@ -2,14 +2,14 @@ import random
 import time
 from celery import shared_task
 from django.utils import timezone
-from myapp.models import TaskLog
+from .models import TaskLog
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def send_sms_task(self, phone_number: str, code: str):
     """Celery задача для отправки SMS с retry при ошибке"""
     log = TaskLog.objects.create(
-        task_id=self.request.id,
+        task_id=code,
         event_type=TaskLog.EventType.SMS,
         recipient=phone_number,
         status=TaskLog.Status.PENDING,
