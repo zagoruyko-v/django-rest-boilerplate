@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "simple_history",
     "rest_framework",
     "users",
+    "worker",
     "api_v0",
     "django_cleanup",
 ]
@@ -77,6 +78,11 @@ CACHES = {
         }
     }
 }
+
+CELERY_BROKER_URL = f"redis://{os.getenv("REDIS_HOST", "redis")}:{os.getenv("REDIS_PORT", "6379")}/{os.getenv("REDIS_CELERY_DB", "1")}"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 
 AUTH_USER_MODEL = "users.User"
 

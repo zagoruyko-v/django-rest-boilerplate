@@ -1,7 +1,3 @@
-import random
-import string
-
-
 class SmsService:
     @staticmethod
     def send_sms(phone_number: str, code: str):

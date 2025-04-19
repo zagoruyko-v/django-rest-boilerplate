@@ -32,6 +32,17 @@ services:
     volumes:
       - redis_data:/data
 
+  worker:
+    build: .
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+    env_file:
+      - .env
+
 volumes:
   postgres_data:
   redis_data:
