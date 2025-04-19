@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
-from .models import User, PhoneVerification
+from .models import User, ConfirmationCode
 
 
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(SimpleHistoryAdmin, BaseUserAdmin):
     fieldsets = (
         (None, {"fields": ("phone_number", "password")}),
         (_("Персональная информация"), {"fields": ("first_name", "last_name")}),
@@ -33,27 +34,35 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
-    readonly_fields = ("last_login", "date_joined")
+    readonly_fields = ("last_login",)
     list_display = ("phone_number", "first_name", "last_name", "is_staff")
     search_fields = ("phone_number", "first_name", "last_name")
     ordering = ("phone_number",)
 
+    def has_add_permission(self, request):
+        return False
 
-@admin.register(PhoneVerification)
-class PhoneVerificationAdmin(admin.ModelAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ConfirmationCode)
+class ConfirmationCodeAdmin(SimpleHistoryAdmin, admin.ModelAdmin):
     list_display = (
-        "phone_number",
         "user",
         "code",
+        "delivery_method",
+        "purpose",
+        "status",
         "created_at",
         "verified_at",
-        "is_valid_display",
     )
-    search_fields = ("phone_number", "code", "user__phone_number")
+    search_fields = ("user__phone_number", "code", "user__email")
     readonly_fields = ("created_at", "verified_at")
-
-    def is_valid_display(self, obj):
-        return obj.is_valid()
+    list_filter = ("status", "created_at", "delivery_method")
 
     def has_add_permission(self, request):
         return False
@@ -63,6 +72,3 @@ class PhoneVerificationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-    is_valid_display.short_description = "Код действителен"
-    is_valid_display.boolean = True

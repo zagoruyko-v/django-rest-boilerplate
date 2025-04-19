@@ -5,7 +5,7 @@ import django
 os.environ["DJANGO_SETTINGS_MODULE"] = "core.settings"
 django.setup()
 
-from users.models import User, PhoneVerification
+from users.models import User, ConfirmationCode
 
 
 @pytest.fixture
@@ -16,8 +16,8 @@ def user():
 
 @pytest.fixture
 def phone_verification(user):
-    """Создаем объект PhoneVerification для тестов"""
-    return PhoneVerification.objects.create(
+    """Создаем объект PhoneAuthentication для тестов"""
+    return ConfirmationCode.objects.create(
         user=user, phone_number="+79999999999", code="123456"
     )
 

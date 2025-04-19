@@ -1,13 +1,20 @@
 from django.urls import path
-from .views import SendPhoneVerificationCodeView, PhoneAuthView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from .views import PhoneAuthRequestCodeView, PhoneAuthVerifyCodeView
 
 app_name = "users"
 
 urlpatterns = [
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path(
-        "auth/send-code/",
-        SendPhoneVerificationCodeView.as_view(),
-        name="send-phone-code",
+        "auth/phone/request/",
+        PhoneAuthRequestCodeView.as_view(),
+        name="auth_phone_request",
     ),
-    path("auth/verify/", PhoneAuthView.as_view(), name="verify-phone"),
+    path(
+        "auth/phone/verify/",
+        PhoneAuthVerifyCodeView.as_view(),
+        name="auth_phone_verify",
+    ),
 ]
